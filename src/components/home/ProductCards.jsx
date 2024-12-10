@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductCard from '../product/ProductCard';
-import { METHODS, sendRequest } from '../../util/axiosUtil';
 
 
 const ProductCards = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  /*
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -27,24 +26,7 @@ const ProductCards = () => {
   if (loading) {
     return <div>Yükleniyor...</div>;
   }
-  */
-  useEffect(() => {
-    sendRequest({
-      url: "/products",
-      method: METHODS.GET,
-      params: {
-        limit: 20
-      },
-      callbackSuccess: (data) => {
-        setProducts(data.products);
-        setLoading(false);
-      },
-      callbackError: (error) => {
-        console.error('Ürünler yüklenirken hata:', error);
-        setLoading(false);
-      }
-    });
-  }, []);
+  
 
 
   return (

@@ -1,6 +1,16 @@
-const ProductCard = ({ product }) => {
+import { useHistory } from 'react-router-dom';
+
+// ... existing imports ...
+
+const ProductCard = ({ product, colors = true }) => {
+  const history = useHistory();
+
+  const handleProductClick = () => {
+    history.push(`/product/${product.id}`);
+  };
+
   return (
-    <div className="group relative">
+    <div className="group relative cursor-pointer" onClick={handleProductClick}>
       {/* Ürün Resmi ve Badge'ler */}
       <div className="relative overflow-hidden">
         <img 
@@ -9,8 +19,7 @@ const ProductCard = ({ product }) => {
           className="w-full aspect-[1/1.3] object-cover"
         />
         
-        {/* Sale/New Badge */}
-        {product.discount_percent && (
+        {product.discount_percent > 0 && (
           <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 text-sm">
             Sale
           </span>
@@ -35,21 +44,28 @@ const ProductCard = ({ product }) => {
         <h3 className="font-bold text-lg text-gray-900">{product.name}</h3>
         <p className="text-sm text-gray-500">{product.category}</p>
         
-        {/* Fiyat */}
+        <p className="text-sm text-gray-600 mt-2 line-clamp-2 break-words">
+          {product.description}
+        </p>
+        
         <div className="flex justify-center gap-2 mt-2">
-          <span className="text-gray-400 line-through">${product.price}</span>
+          {product.discount_percent > 0 && (
+            <span className="text-gray-400 line-through">${product.price}</span>
+          )}
           <span className="text-blue-500 font-bold">
             ${(product.price * (1 - product.discount_percent/100)).toFixed(2)}
           </span>
         </div>
 
-        {/* Renk seçenekleri */}
-        <div className="flex justify-center gap-2 mt-3">
-          <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-          <div className="w-4 h-4 rounded-full bg-green-500"></div>
-          <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-          <div className="w-4 h-4 rounded-full bg-black"></div>
-        </div>
+        {/* Renk seçenekleri - colors prop'una göre koşullu render */}
+        {colors && (
+          <div className="flex justify-center gap-2 mt-3">
+            <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+            <div className="w-4 h-4 rounded-full bg-green-500"></div>
+            <div className="w-4 h-4 rounded-full bg-orange-500"></div>
+            <div className="w-4 h-4 rounded-full bg-black"></div>
+          </div>
+        )}
       </div>
     </div>
   );
