@@ -1,6 +1,23 @@
-import { Phone, Mail, Instagram, Youtube, Facebook, Twitter, Search, ShoppingCart, Heart, LogIn } from 'lucide-react';
+import { Phone, Mail, Instagram, Youtube, Facebook, Twitter, Search, ShoppingCart, Heart, User } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import Gravatar from 'react-gravatar';
+import { logout } from '../store/actions/clientAction';
+import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 const Header = () => {
+  const userInfo = useSelector((state) => state.client.userInfo);
+  console.log("Current user state:", userInfo); // Debug için
+  
+  const dispatch = useDispatch();
+  const history = useHistory();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    history.push('/');
+  };
+
   return (
     <>
       {/* Top Bar - Mobile'da gizlenecek */}
@@ -44,31 +61,51 @@ const Header = () => {
             {/* Navigation - Masaüstünde yatay, mobilde dikey */}
             <nav className="max-md:hidden md:items-center md:justify-center md:gap-8 md:mt-0 mt-4">
               <div className="flex flex-col md:flex-row md:gap-8 text-center">
-                <a href="#" className="hover:text-blue-500 py-2 ">Home</a>
-                <a href="#" className="hover:text-blue-500 py-2 ">Shop</a>
-                <a href="#" className="hover:text-blue-500 py-2 ">About</a>
-                <a href="#" className="hover:text-blue-500 py-2 ">Blog</a>
-                <a href="#" className="hover:text-blue-500 py-2 ">Contact</a>
-                <a href="#" className="hover:text-blue-500 py-2 ">Pages</a>
+                <Link to="/" className="hover:text-blue-500 py-2">Home</Link>
+                <Link to="/shop" className="hover:text-blue-500 py-2">Shop</Link>
+                <Link to="/about-us" className="hover:text-blue-500 py-2">About</Link>
+                <Link to="/team" className="hover:text-blue-500 py-2">Team</Link>
+                <Link to="/contact" className="hover:text-blue-500 py-2">Contact</Link>
+                {/* <Link to="/pages" className="hover:text-blue-500 py-2">Pages</Link> */}
               </div>
             </nav>
 
             <div className="flex items-center gap-4">
+            {userInfo.token? (
+              <div className="flex items-center gap-2">
+                <Gravatar
+                  email={userInfo.email}
+                  size={32}
+                  className="rounded-full"
+                />
+                <User size={20} />
+                <span className="text-sm font-medium">{userInfo.name}</span>
+                <button onClick={handleLogout}>Log out</button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link to="/login" className="text-sm font-medium hover:text-blue-500">
+                  Login
+                </Link>
+                <span>/</span>
+                <Link to="/register" className="text-sm font-medium hover:text-blue-500">
+                  Register
+                </Link>
+              </div>
+)}
+              
               <button className="hover:text-blue-500">
-                <LogIn size={24} />
+                <Search size={20} />
               </button>
-              <button className="hover:text-blue-500">
-                <Search size={24} />
-              </button>
-              <button className="hover:text-blue-500">
-                <ShoppingCart size={24} />
-              </button>
-              <button className="hover:text-blue-500 flex items-center gap-1 max-md:hidden">
-                <Heart size={24} />
+              <Link to="/cart" className="hover:text-blue-500 flex items-center gap-1">
+                <ShoppingCart size={20} />
                 <span>1</span>
-              </button>  
-            </div>
-
+              </Link>
+              <Link to="/wishlist" className="hover:text-blue-500 flex items-center gap-1 max-md:hidden">
+                <Heart size={20} />
+                <span>1</span>
+              </Link>
+            </div>         
           </div>
 
           {/* Mobil Menü */}
@@ -79,7 +116,7 @@ const Header = () => {
             <a href="#" className="hover:text-blue-500 py-6">Contact</a>
           </nav>
 
-        </div>
+          </div>
       </header>
     </>
   );

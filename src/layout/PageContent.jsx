@@ -1,4 +1,5 @@
-import { Switch, Route } from "react-router-dom/";
+import { Switch, Route, Redirect } from "react-router-dom/";
+
 import HomePage from "../pages/HomePage";
 import ShopPage from "../pages/ShopPage";
 import ProductDetailPage from "../pages/ProductDetailPage";
@@ -6,8 +7,14 @@ import ContactPage from "../pages/ContactPage";
 import TeamPage from "../pages/TeamPage";
 import AboutPage from "../pages/AboutPage";
 import RegisterPage from "../pages/RegisterPage";
+import LoginPage from "../pages/LoginPage";
+
+import { useSelector } from 'react-redux';
+import { PublicOnlyRoute } from '../routes/PublicOnlyRoute';
 
 export const PageContent = () => {
+  const userInfo = useSelector((state) => state.client.userInfo);
+
   return (
     <>
       <Switch>
@@ -29,9 +36,8 @@ export const PageContent = () => {
         <Route path="/about-us">
           <AboutPage />
         </Route>
-        <Route path="/register">
-          <RegisterPage />
-        </Route>
+        <PublicOnlyRoute path="/login" component={LoginPage} />
+        <PublicOnlyRoute path="/register" component={RegisterPage} />
       </Switch>
     </>
   );

@@ -5,36 +5,22 @@ import { METHODS, sendRequest } from "../../utils/axiosUtil";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchRoles } from '../../store/actions/clientAction';
 
 
 
 const RegisterForm = () => {
-  const history = useHistory(); // Yönlendirme için
+  //const history = useHistory(); // Yönlendirme için
   const [error, setError] = useState(null); // Hata mesajı için
-  const [roles, setRoles] = useState([
-    { id: 3, name: "Müşteri", code: "customer" } // Default değer
-  ]);
-  // ... diğer state'ler aynı ...
+  const roles = useSelector(state => state.client.roles);
+  const dispatch = useDispatch();
 
   // Rolleri çek
   useEffect(() => {
-    const fetchRoles = async () => {
-      console.log('Fetching roles...'); // Test için
-      try {
-        const response = await sendRequest({
-          url: "/roles",
-          method: METHODS.GET
-        });
-        console.log("response", response);
-        // Tüm rolleri set et
-        setRoles(response);
-      } catch (error) {
-        console.error("Error fetching roles:", error);
-      }
-    };
-
-    fetchRoles();
-  }, []);
+    console.log('Fetching roles...'); // Test için
+    dispatch(fetchRoles());
+  }, [dispatch]);
 
   // React Hook Form
   const {
@@ -161,13 +147,13 @@ const RegisterForm = () => {
             className="basis-[48%] text-center hover:bg-blue-500 hover:text-white py-4"
             to="/login"
           >
-            Sign In
+            Login
           </Link>
           <Link
             className="basis-[48%] text-center bg-blue-500 text-white py-4"
             to="/register"
           >
-            Sign Up
+            Register
           </Link>
         </div>
 

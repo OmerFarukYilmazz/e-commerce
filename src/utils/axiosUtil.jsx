@@ -15,8 +15,11 @@ export const sendRequest = ({
 }) => {
   const instance = axios.create({
     baseURL: "https://workintech-fe-ecommerce.onrender.com",
-    timeout: 5000,
+    timeout: 5000, 
     params,
+    headers: {
+      Authorization: localStorage.getItem('token') || ''
+    }
   });
 
   return instance[method](url, data)
@@ -25,3 +28,4 @@ export const sendRequest = ({
       throw error;
     });
 };
+
