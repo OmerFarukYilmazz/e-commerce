@@ -6,12 +6,22 @@ import { logout } from '../store/actions/clientAction';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
+import Categories from '../components/category/Categories';
+import { useState } from 'react';
+
 const Header = () => {
-  const userInfo = useSelector((state) => state.client.userInfo);
-  console.log("Current user state:", userInfo); // Debug için
+  const userInfo = useSelector((state) => state.client.userInfo);  
+  const [showCategories, setShowCategories] = useState(false);
+
+  //console.log("Current user state:", userInfo); // Debug için
   
   const dispatch = useDispatch();
   const history = useHistory();
+ 
+  const handleShowCategories = () => {
+    setShowCategories(!showCategories);
+  };
+ 
 
   const handleLogout = () => {
     dispatch(logout());
@@ -60,9 +70,21 @@ const Header = () => {
 
             {/* Navigation - Masaüstünde yatay, mobilde dikey */}
             <nav className="max-md:hidden md:items-center md:justify-center md:gap-8 md:mt-0 mt-4">
-              <div className="flex flex-col md:flex-row md:gap-8 text-center">
+            <div className="flex flex-col md:flex-row md:gap-8 text-center">
                 <Link to="/" className="hover:text-blue-500 py-2">Home</Link>
-                <Link to="/shop" className="hover:text-blue-500 py-2">Shop</Link>
+                <div className="relative">
+                  <button 
+                    className="hover:text-blue-500 py-2"
+                    onClick={handleShowCategories}
+                  >
+                    Shop
+                  </button>
+                  {showCategories && (
+                    <div className="absolute z-10 top-full">
+                      <Categories handleShowCategories = {handleShowCategories} />
+                    </div>
+                  )}
+                </div>
                 <Link to="/about-us" className="hover:text-blue-500 py-2">About</Link>
                 <Link to="/team" className="hover:text-blue-500 py-2">Team</Link>
                 <Link to="/contact" className="hover:text-blue-500 py-2">Contact</Link>

@@ -5,17 +5,27 @@ import {
   SET_FETCH_STATE,
   SET_LIMIT,
   SET_OFFSET,
-  SET_FILTER
+  SET_FILTER,
+  SET_SORT, 
+  SET_SELECTED_GENDER,
+  SET_SELECTED_CATEGORY,
+  SET_PRODUCT_DETAIL
 } from '../actions/productAction';
 
 const initialState = {
   categories: [],
-  productList: [],
-  total: 0,
+  productList: [], // list of products
+  total: 0, // total number of products
   limit: 25, //default limit
   offset: 0, //default offset
-  filter: '',
-  fetchState: 'NOT_FETCHED'
+  filter: '', // filter for search
+  categoriesFetchState: 'NOT_FETCHED', // Categories için ayrı fetch state
+  productsFetchState: 'NOT_FETCHED',   // Products için ayrı fetch state
+  selectedGender: null,  // 'e' or 'k'
+  selectedCategory: null, // selected category
+  productDetail: null, // product detail
+  productDetailFetchState: 'NOT_FETCHED', // product detail fetch state
+  sort: '' // sort for sorting // 
 };
 
 const productReducer = (state = initialState, action) => {
@@ -36,9 +46,10 @@ const productReducer = (state = initialState, action) => {
         total: action.payload
       };
     case SET_FETCH_STATE:
+      // Action'da hangi fetch state'in güncellendiğini belirtelim
       return {
         ...state,
-        fetchState: action.payload
+        [action.payload.type]: action.payload.status
       };
     case SET_LIMIT:
       return {
@@ -55,8 +66,29 @@ const productReducer = (state = initialState, action) => {
         ...state,
         filter: action.payload
       };
+    case SET_SORT:
+      return {
+        ...state,
+        sort: action.payload
+      };
+    case SET_SELECTED_GENDER:
+      return {
+        ...state,
+        selectedGender: action.payload
+      };
+    case SET_SELECTED_CATEGORY:
+      return {
+        ...state,
+        selectedCategory: action.payload
+      };
+    case SET_PRODUCT_DETAIL:
+      return {
+        ...state,
+        productDetail: action.payload
+      };
     default:
       return state;
+    
   }
 };
 

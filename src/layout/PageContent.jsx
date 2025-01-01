@@ -20,12 +20,12 @@ export const PageContent = () => {
       <Switch>
         <Route path="/" exact>
           <HomePage />
+        </Route>        
+        <Route path="/shop/:gender/:categoryName/:categoryId/:productNameSlug/:productId">
+          <ProductDetailPage />
         </Route>
         <Route path="/shop">
           <ShopPage />
-        </Route>
-        <Route path="/product/:id">
-          <ProductDetailPage />
         </Route>
         <Route path="/contact">
           <ContactPage />

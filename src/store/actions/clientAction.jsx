@@ -94,7 +94,7 @@ export const verifyToken = () => {
     return async (dispatch) => {
       try {
         const token = localStorage.getItem('token');        
-        if (!token) return;
+        if (!token) return; // Token yoksa çık
         console.log("Token:", token);
 
         // Token'ı verify et

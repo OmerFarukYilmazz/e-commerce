@@ -1,13 +1,21 @@
 import { useHistory } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-// ... existing imports ...
 
-const ProductCard = ({ product, colors = true }) => {
+const ProductCard = ({ product, viewType = 'grid' }) => {
   const history = useHistory();
+  const { selectedGender, selectedCategory } = useSelector(state => state.product);
+
 
   const handleProductClick = () => {
-    history.push(`/product/${product.id}`);
+    const productNameSlug = product.name.toLowerCase().replace(/ /g, '-');
+    history.push(`/shop/${selectedGender === 'e' ? 'erkek' : 'kadin'}/${selectedCategory.title.toLowerCase()}/${selectedCategory.id}/${productNameSlug}/${product.id}`);
   };
+  
+  // Fiyat hesaplamaları
+  const originalPrice = parseFloat(product.price);
+  const discountPercent = parseFloat(product.discount_percent) || 0;
+  const discountedPrice = originalPrice * (1 - discountPercent / 100);
 
   return (
     <div className="group relative cursor-pointer" onClick={handleProductClick}>
@@ -19,9 +27,9 @@ const ProductCard = ({ product, colors = true }) => {
           className="w-full aspect-[1/1.3] object-cover"
         />
         
-        {product.discount_percent > 0 && (
+        {discountPercent > 0 && (
           <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 text-sm">
-            Sale
+            -{discountPercent}%
           </span>
         )}
 
@@ -48,24 +56,26 @@ const ProductCard = ({ product, colors = true }) => {
           {product.description}
         </p>
         
-        <div className="flex justify-center gap-2 mt-2">
-          {product.discount_percent > 0 && (
-            <span className="text-gray-400 line-through">${product.price}</span>
-          )}
-          <span className="text-blue-500 font-bold">
-            ${(product.price * (1 - product.discount_percent/100)).toFixed(2)}
+        {/* Fiyat Bilgisi - Her zaman iki fiyatı da göster */}
+        <div className="flex justify-center items-center gap-2 mt-2">
+          <span className="text-gray-400 text-sm">
+            ${originalPrice.toFixed(2)}
+          </span>
+          <span className="text-green-600 font-semibold">
+            ${discountedPrice.toFixed(2)}
           </span>
         </div>
 
-        {/* Renk seçenekleri - colors prop'una göre koşullu render */}
-        {colors && (
-          <div className="flex justify-center gap-2 mt-3">
-            <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-            <div className="w-4 h-4 rounded-full bg-green-500"></div>
-            <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-            <div className="w-4 h-4 rounded-full bg-black"></div>
-          </div>
-        )}
+        {/* Renk seçenekleri */}
+        <div className="flex justify-center gap-2 mt-3">
+          {product.colors?.map((color, index) => (
+            <div 
+              key={index}
+              className="w-4 h-4 rounded-full"
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,125 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useCallback } from 'react';
+// import axios from 'axios'; // old method
 import ProductCard from '../product/ProductCard';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchFilteredProducts, setSort, setFilter, setOffset} from '../../store/actions/productAction';
+import debounce from 'lodash/debounce';
+import ReactPaginate from 'react-paginate';
+
+import { useHistory, useLocation } from 'react-router-dom';
+
 
 const ProductCards = () => {
-  const [products, setProducts] = useState([]);
+  // for old and new method
+  //const [sortType, setSortType] = useState('default');
+  const [viewType, setViewType] = useState('grid');
+  const location = useLocation();
+  const history = useHistory();
+
+  // for store method
+  const dispatch = useDispatch();
+  const [searchTerm, setSearchTerm] = useState('');
+  const {
+    productList,    
+    selectedGender,
+    selectedCategory,
+    filter,
+    sort,
+    limit,
+    offset,
+    total
+  } = useSelector(state => state.product);
+  
+  const fetchState = useSelector(state => state.product.productsFetchState);
+  console.log(fetchState + " fetchState");
+
+  // Sort options
+  const sortOptions = [
+  { value: '', label: 'Popularity' },
+  { value: 'price:asc', label: 'Price Low to High' },
+  { value: 'price:desc', label: 'Price High to Low' },
+  { value: 'rating:asc', label: 'Rating Low to High' },
+  { value: 'rating:desc', label: 'Rating High to Low' }
+  ];
+
+  // filter değişkenini dependency array'den çıkarıyoruz
+  useEffect(() => {
+    if (fetchState === 'NOT_FETCHED') {
+      dispatch(fetchFilteredProducts());
+    }
+  }, [selectedGender, selectedCategory, filter, sort, dispatch]);
+
+  // URL'den current page'i al
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const currentOffset = parseInt(params.get('offset')) || 0;
+    if (currentOffset !== offset) {
+      dispatch(setOffset(currentOffset));
+      dispatch(fetchFilteredProducts());
+    }
+  }, [location.search]);
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce((value) => {
+      dispatch(setFilter(value));
+      dispatch(fetchFilteredProducts());
+    }, 500),
+    [dispatch]
+  );
+
+  const handleSortChange = (e) => {
+    dispatch(setSort(e.target.value));
+  };
+
+  const handleFilterChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value); // Local state'i güncelle
+    debouncedSearch(value); // Debounced API çağrısı
+  };
+
+  const handlePageChange = ({ selected }) => {
+    const newOffset = selected * limit;
+    
+    // URL'i güncelle
+    const params = new URLSearchParams(location.search);
+    params.set('offset', newOffset);
+    params.set('limit', limit);
+    
+    history.push({
+      pathname: location.pathname,
+      search: `?${params.toString()}`
+    });
+
+    dispatch(setOffset(newOffset));
+    dispatch(fetchFilteredProducts());
+    window.scrollTo(0, 0);
+  };
+
+  if (fetchState === 'FETCHING') {
+    return <div>Loading...</div>; // spinner will be added
+  }
+
+  // Mevcut ürünleri filtrele
+  const filteredProducts = searchTerm 
+    ? productList.filter(product => 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : productList;
+
+
+
+  // old method for fetching products
+  /*
+  const [productList, setProductList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [viewType, setViewType] = useState('grid');
-  const [sortType, setSortType] = useState('default');
+  
+  
   const limit = 12;
-
+  
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -29,6 +138,7 @@ const ProductCards = () => {
 
     fetchProducts();
   }, [currentPage]);
+  */
 
   return (
     <main className="flex justify-center pb-20 pt-10">
@@ -37,7 +147,7 @@ const ProductCards = () => {
         <div className="flex max-md:flex-col justify-between max-md:justify-center px-10 items-center flex-wrap gap-5 pb-10">
           {/* Sonuç Sayısı */}
           <h6 className="font-bold text-sm text-secondTextColor">
-            Showing all {products.length} results
+            Showing all {productList.length} results
           </h6>
 
           {/* Görünüm Seçenekleri */}
@@ -62,18 +172,23 @@ const ProductCards = () => {
             <div className="rounded bg-bgInput border border-borderGray">
               <select
                 className="bg-bgInput text-sm text-secondTextColor py-2 px-4"
-                value={sortType}
-                onChange={(e) => setSortType(e.target.value)}
+                value={sort}
+                onChange={handleSortChange}
               >
-                <option value="default">Popularity</option>
-                <option value="price_low">Price Low to High</option>
-                <option value="price_high">Price High to Low</option>
-                <option value="rating">Rating</option>
+                {sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleFilterChange}
+                placeholder="Search products..."
+                className="px-4 py-2 border rounded"
+              />
             </div>
-            <button className="font-bold text-sm text-white bg-primary px-5 py-2 rounded hover:opacity-70">
-              Filter
-            </button>
           </div>
         </div>
 
@@ -84,7 +199,7 @@ const ProductCards = () => {
             : 'flex flex-col gap-4'
           } px-10
         `}>
-          {products.map(product => (
+          {productList.map(product => (
             <ProductCard 
               key={product.id} 
               product={product}
@@ -94,23 +209,26 @@ const ProductCards = () => {
         </div>
 
         {/* Sayfalama */}
-        <div className="text-primary w-[313px] h-[44px] flex mx-auto border border-lightGray rounded-md mt-12">
-          <button className="basis-[33%] border-r border-lightGray hover:bg-primary hover:text-white text-sm">
-            First
-          </button>
-          <button className="basis-[22%] border-r border-lightGray hover:bg-primary hover:text-white text-sm">
-            1
-          </button>
-          <button className="basis-[22%] border-r border-lightGray hover:bg-primary hover:text-white text-sm">
-            2
-          </button>
-          <button className="basis-[22%] border-r border-lightGray hover:bg-primary hover:text-white text-sm">
-            3
-          </button>
-          <button className="basis-[33%] hover:bg-primary hover:text-white text-sm">
-            Next
-          </button>
-        </div>
+        <ReactPaginate
+          previousLabel="Previous"
+          nextLabel="Next"
+          breakLabel= "..."
+          pageCount={Math.ceil(total / limit)}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageChange}
+          forcePage={offset / limit}
+          containerClassName="pagination flex justify-center items-center gap-2 mt-8"
+          pageClassName="page-item"
+          pageLinkClassName="page-link px-4 py-2 border rounded hover:bg-primary hover:text-white"
+          previousClassName="page-item"
+          previousLinkClassName="page-link px-4 py-2 border rounded hover:bg-primary hover:text-white"
+          nextClassName="page-item"
+          nextLinkClassName="page-link px-4 py-2 border rounded hover:bg-primary hover:text-white"
+          breakClassName="page-item"
+          breakLinkClassName="page-link px-4 py-2"
+          activeClassName="active bg-primary text-white"
+        />
       </div>
     </main>
   );
