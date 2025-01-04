@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 //import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductDetail } from '../../store/actions/productAction';
-
+import { addToCart } from '../../store/actions/shoppingCartAction';
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -18,6 +18,12 @@ const ProductDetail = () => {
     dispatch(fetchProductDetail(productId));
   }, [productId, dispatch]);
 
+  const handleAddToCart = () => {
+    if (productDetail) {
+      dispatch(addToCart(productDetail));
+    }
+  };
+
   if (fetchState === 'FETCHING') return <div>Yükleniyor...</div>;
   if (!productDetail) return <div>Ürün bulunamadı</div>;
   
@@ -25,6 +31,8 @@ const ProductDetail = () => {
   const originalPrice = parseFloat(productDetail.price);
   const discountPercent = parseFloat() || 0;
   const discountedPrice = originalPrice * (1 - discountPercent / 100);
+
+
 
   // old method
   /*
@@ -171,7 +179,10 @@ const ProductDetail = () => {
                   <button className="w-10 h-10 flex items-center justify-center bg-white rounded-full hover:bg-gray-100">
                     <i className="fa-regular fa-heart"></i>
                   </button>
-                  <button className="w-10 h-10 flex items-center justify-center bg-white rounded-full hover:bg-gray-100">
+                  <button 
+                    onClick={handleAddToCart}
+                    className="w-10 h-10 flex items-center justify-center bg-white rounded-full hover:bg-gray-100"
+                  >
                     <i className="fa-solid fa-cart-shopping"></i>
                   </button>
                   <button className="w-10 h-10 flex items-center justify-center bg-white rounded-full hover:bg-gray-100">

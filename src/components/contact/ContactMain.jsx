@@ -1,4 +1,4 @@
-import arrowIcon from "../../assets/arrow.png";
+import arrowIcon from '../../assets/Arrow.png';
 
 const ContactCard = ({ icon, emails, isDark }) => {
   return (

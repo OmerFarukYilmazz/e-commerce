@@ -1,17 +1,30 @@
-import { useHistory } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useHistory } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { addToCart } from "../../store/actions/shoppingCartAction";
 
-
-const ProductCard = ({ product, viewType = 'grid' }) => {
+const ProductCard = ({ product, viewType = "grid" }) => {
   const history = useHistory();
-  const { selectedGender, selectedCategory } = useSelector(state => state.product);
+  const { selectedGender, selectedCategory } = useSelector(
+    (state) => state.product
+  );
+  const dispatch = useDispatch();
 
+  const handleAddToCart = (e) => {
+    e.stopPropagation(); // Tıklamanın parent'a gitmesini engelle
+    dispatch(addToCart(product));
+  };
 
   const handleProductClick = () => {
-    const productNameSlug = product.name.toLowerCase().replace(/ /g, '-');
-    history.push(`/shop/${selectedGender === 'e' ? 'erkek' : 'kadin'}/${selectedCategory.title.toLowerCase()}/${selectedCategory.id}/${productNameSlug}/${product.id}`);
+    const productNameSlug = product.name.toLowerCase().replace(/ /g, "-");
+    history.push(
+      `/shop/${
+        selectedGender === "e" ? "erkek" : "kadin"
+      }/${selectedCategory.title.toLowerCase()}/${
+        selectedCategory.id
+      }/${productNameSlug}/${product.id}`
+    );
   };
-  
+
   // Fiyat hesaplamaları
   const originalPrice = parseFloat(product.price);
   const discountPercent = parseFloat(product.discount_percent) || 0;
@@ -21,12 +34,12 @@ const ProductCard = ({ product, viewType = 'grid' }) => {
     <div className="group relative cursor-pointer" onClick={handleProductClick}>
       {/* Ürün Resmi ve Badge'ler */}
       <div className="relative overflow-hidden">
-        <img 
-          src={product.images[0]?.url} 
+        <img
+          src={product.images[0]?.url}
           alt={product.name}
           className="w-full aspect-[1/1.3] object-cover"
         />
-        
+
         {discountPercent > 0 && (
           <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 text-sm">
             -{discountPercent}%
@@ -38,7 +51,10 @@ const ProductCard = ({ product, viewType = 'grid' }) => {
           <button className="p-2 bg-white rounded-full hover:bg-gray-100">
             <i className="fa-regular fa-heart"></i>
           </button>
-          <button className="p-2 bg-white rounded-full hover:bg-gray-100">
+          <button
+            className="p-2 bg-white rounded-full hover:bg-gray-100"
+            onClick={handleAddToCart}
+          >
             <i className="fa-solid fa-cart-shopping"></i>
           </button>
           <button className="p-2 bg-white rounded-full hover:bg-gray-100">
@@ -51,11 +67,11 @@ const ProductCard = ({ product, viewType = 'grid' }) => {
       <div className="text-center p-4">
         <h3 className="font-bold text-lg text-gray-900">{product.name}</h3>
         <p className="text-sm text-gray-500">{product.category}</p>
-        
+
         <p className="text-sm text-gray-600 mt-2 line-clamp-2 break-words">
           {product.description}
         </p>
-        
+
         {/* Fiyat Bilgisi - Her zaman iki fiyatı da göster */}
         <div className="flex justify-center items-center gap-2 mt-2">
           <span className="text-gray-400 text-sm">
@@ -69,7 +85,7 @@ const ProductCard = ({ product, viewType = 'grid' }) => {
         {/* Renk seçenekleri */}
         <div className="flex justify-center gap-2 mt-3">
           {product.colors?.map((color, index) => (
-            <div 
+            <div
               key={index}
               className="w-4 h-4 rounded-full"
               style={{ backgroundColor: color }}

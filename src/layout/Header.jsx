@@ -9,9 +9,18 @@ import { useHistory } from 'react-router-dom';
 import Categories from '../components/category/Categories';
 import { useState } from 'react';
 
+import CartDropdown from '../components/shop/CartDropdown';
+
+
 const Header = () => {
   const userInfo = useSelector((state) => state.client.userInfo);  
   const [showCategories, setShowCategories] = useState(false);
+  
+  const [showCart, setShowCart] = useState(false);
+  const cart = useSelector(state => state.shoppingCart.cart);
+  const totalItems = cart.reduce((total, item) => total + item.count, 0);
+
+  const [closeTimeout, setCloseTimeout] = useState(null);
 
   //console.log("Current user state:", userInfo); // Debug için
   
@@ -26,6 +35,24 @@ const Header = () => {
   const handleLogout = () => {
     dispatch(logout());
     history.push('/');
+  };
+  
+
+  const handleMouseEnter = () => {
+    if (closeTimeout) clearTimeout(closeTimeout);
+    setShowCart(true);
+  };
+
+  const handleMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setShowCart(false);
+    }, 300); // 300ms gecikme ekledik
+    setCloseTimeout(timeout);
+  };
+
+  const handleCartClick = () => {
+    setShowCart(false); 
+    history.push('/cart');
   };
 
   return (
@@ -119,10 +146,20 @@ const Header = () => {
               <button className="hover:text-blue-500">
                 <Search size={20} />
               </button>
-              <Link to="/cart" className="hover:text-blue-500 flex items-center gap-1">
-                <ShoppingCart size={20} />
-                <span>1</span>
-              </Link>
+              <div 
+                className="relative"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <button 
+                  className="hover:text-blue-500 flex items-center gap-1"
+                  onClick={handleCartClick}
+                >
+                  <ShoppingCart size={20} />
+                  <span>{totalItems}</span>
+                </button>
+                {showCart && <CartDropdown cart={cart} onClose={() => setShowCart(false)} />}
+              </div>
               <Link to="/wishlist" className="hover:text-blue-500 flex items-center gap-1 max-md:hidden">
                 <Heart size={20} />
                 <span>1</span>

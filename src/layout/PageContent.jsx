@@ -8,6 +8,7 @@ import TeamPage from "../pages/TeamPage";
 import AboutPage from "../pages/AboutPage";
 import RegisterPage from "../pages/RegisterPage";
 import LoginPage from "../pages/LoginPage";
+import CartPage from "../pages/CartPage";
 
 import { useSelector } from 'react-redux';
 import { PublicOnlyRoute } from '../routes/PublicOnlyRoute';
@@ -35,6 +36,9 @@ export const PageContent = () => {
         </Route>
         <Route path="/about-us">
           <AboutPage />
+        </Route>
+        <Route path="/cart">
+          <CartPage />
         </Route>
         <PublicOnlyRoute path="/login" component={LoginPage} />
         <PublicOnlyRoute path="/register" component={RegisterPage} />
