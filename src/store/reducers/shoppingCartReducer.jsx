@@ -6,12 +6,24 @@ import {
   UPDATE_CART_ITEM,
   TOGGLE_CART_ITEM,
   REMOVE_FROM_CART,
+  SET_ADDRESSES,
+  SET_SELECTED_ADDRESS,
+  SET_CURRENT_STEP,
+  SET_PAYMENT_METHOD,
+  SET_CARDS,
+  SET_SELECTED_CARD,
 } from "../actions/shoppingCartAction";
 
 const initialState = {
   cart: [], // [{  count: 1, product: { id: “1235”, … }  },]
   payment: {},
   address: {},
+  addresses: [],
+  selectedAddress: null,
+  currentStep: 1,
+  paymentMethod: null,
+  cards: [],
+  selectedCard: null,
 };
 
 const shoppingCartReducer = (state = initialState, action) => {
@@ -32,6 +44,36 @@ const shoppingCartReducer = (state = initialState, action) => {
       return {
         ...state,
         address: action.payload,
+      };
+    case SET_ADDRESSES:
+      return {
+        ...state,
+        addresses: action.payload,
+      };
+    case SET_SELECTED_ADDRESS:
+      return {
+        ...state,
+        selectedAddress: action.payload,
+      };
+    case SET_CURRENT_STEP:
+      return {
+        ...state,
+        currentStep: action.payload,
+      };
+    case SET_PAYMENT_METHOD:
+      return {
+        ...state,
+        paymentMethod: action.payload,
+      };
+    case SET_CARDS:
+      return {
+        ...state,
+        cards: action.payload,
+      };
+    case SET_SELECTED_CARD:
+      return {
+        ...state,
+        selectedCard: action.payload,
       };
     case ADD_TO_CART:
       // Sepette aynı ürün var mı kontrol et

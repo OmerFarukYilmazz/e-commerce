@@ -9,6 +9,7 @@ import AboutPage from "../pages/AboutPage";
 import RegisterPage from "../pages/RegisterPage";
 import LoginPage from "../pages/LoginPage";
 import CartPage from "../pages/CartPage";
+import OrderPage from "../pages/OrderPage";
 
 import { useSelector } from 'react-redux';
 import { PublicOnlyRoute } from '../routes/PublicOnlyRoute';
@@ -39,7 +40,11 @@ export const PageContent = () => {
         </Route>
         <Route path="/cart">
           <CartPage />
-        </Route>
+        </Route>    
+        <Route path="/order/address">
+        {userInfo.token ? <OrderPage /> : <Redirect to="/login" />}
+        </Route>  
+
         <PublicOnlyRoute path="/login" component={LoginPage} />
         <PublicOnlyRoute path="/register" component={RegisterPage} />
       </Switch>

@@ -6,6 +6,17 @@ export const UPDATE_CART_ITEM = 'UPDATE_CART_ITEM';
 export const TOGGLE_CART_ITEM = 'TOGGLE_CART_ITEM';
 export const REMOVE_FROM_CART = 'REMOVE_FROM_CART';
 
+export const SET_ADDRESSES = 'SET_ADDRESSES';
+export const SET_SELECTED_ADDRESS = 'SET_SELECTED_ADDRESS';
+export const SET_CURRENT_STEP = 'SET_CURRENT_STEP';
+export const SET_PAYMENT_METHOD = 'SET_PAYMENT_METHOD';
+export const SET_CARDS = 'SET_CARDS';
+export const SET_SELECTED_CARD = 'SET_SELECTED_CARD';
+
+
+import { toast } from 'react-toastify';
+import { sendRequest, METHODS } from '../../utils/axiosUtil';
+
 // Action Creators
 export const setCart = (cart) => ({
   type: SET_CART,
@@ -41,3 +52,144 @@ export const removeFromCart = (productId) => ({
   type: REMOVE_FROM_CART,
   payload: productId
 }); 
+
+export const setAddresses = (addresses) => ({
+  type: SET_ADDRESSES,
+  payload: addresses
+});
+
+export const setSelectedAddress = (address) => ({
+  type: SET_SELECTED_ADDRESS,
+  payload: address
+});
+
+export const setCurrentStep = (step) => ({
+  type: SET_CURRENT_STEP,
+  payload: step
+});
+
+export const setPaymentMethod = (method) => ({
+  type: SET_PAYMENT_METHOD,
+  payload: method
+});
+
+// Address Thunk Actions
+export const fetchAddresses = () => {
+  return async (dispatch) => {
+    try {
+      const response = await sendRequest({
+        url: '/user/address',
+        method: METHODS.GET
+      });
+      dispatch(setAddresses(response));
+    } catch (error) {
+      toast.error('Addresses could not be loaded');
+    }
+  };
+};
+
+// Add Address Thunk Action
+export const addAddress = (addressData) => {
+  return async (dispatch) => {
+    try {
+      await sendRequest({
+        url: '/user/address',
+        method: METHODS.POST,
+        data: addressData
+      });
+      dispatch(fetchAddresses()); 
+      toast.success('Address added successfully');
+    } catch (error) {
+      toast.error('Address could not be added');
+    }
+  };
+};
+// Update Address Thunk Action
+export const updateAddress = (addressData) => {
+  return async (dispatch) => {
+    try {
+      await sendRequest({
+        url: '/user/address',
+        method: METHODS.PUT,
+        data: addressData
+      });
+      dispatch(fetchAddresses()); 
+      toast.success('Address updated successfully');
+    } catch (error) {
+      toast.error('Address could not be updated');
+    }
+  };
+};
+
+// Delete Address Thunk Action
+export const deleteAddress = (addressId) => {
+  return async (dispatch) => {
+    try {
+      await sendRequest({
+        url: `/user/address/${addressId}`,
+        method: METHODS.DELETE
+      });
+      dispatch(fetchAddresses());
+      toast.success('Address deleted successfully');
+    } catch (error) {
+      toast.error('Address could not be deleted');
+    }
+  };
+};
+
+// Kartları getir
+export const fetchCards = () => async dispatch => {
+  try {
+    const response = await sendRequest({
+      url: '/user/card',
+      method: METHODS.GET
+    });
+    dispatch({ type: SET_CARDS, payload: response });
+  } catch (error) {
+    console.error('Error fetching cards:', error);
+  }
+};
+
+// Yeni kart ekle
+export const addCard = (cardData) => async dispatch => {
+  try {
+    await sendRequest({
+      url: '/user/card',
+      method: METHODS.POST,
+      data: cardData
+    });
+    dispatch(fetchCards()); // Kartları yeniden yükle
+  } catch (error) {
+    console.error('Error adding card:', error);
+    throw error;
+  }
+};
+
+// Kart güncelle
+export const updateCard = (cardData) => async dispatch => {
+  try {
+    await sendRequest({
+      url: '/user/card',
+      method: METHODS.PUT,
+      data: cardData
+    });
+    dispatch(fetchCards()); // Kartları yeniden yükle
+  } catch (error) {
+    console.error('Error updating card:', error);
+    throw error;
+  }
+};
+
+// Kart sil
+export const deleteCard = (cardId) => async dispatch => {
+  try {
+    await sendRequest({
+      url: `/user/card/${cardId}`,
+      method: METHODS.DELETE
+    });
+    dispatch(fetchCards()); // Kartları yeniden yükle
+  } catch (error) {
+    console.error('Error deleting card:', error);
+    throw error;
+  }
+};
