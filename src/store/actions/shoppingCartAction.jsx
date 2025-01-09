@@ -12,6 +12,9 @@ export const SET_CURRENT_STEP = 'SET_CURRENT_STEP';
 export const SET_PAYMENT_METHOD = 'SET_PAYMENT_METHOD';
 export const SET_CARDS = 'SET_CARDS';
 export const SET_SELECTED_CARD = 'SET_SELECTED_CARD';
+export const RESET_CART = 'RESET_CART';
+export const RESET_SELECTED_ADDRESS = 'RESET_SELECTED_ADDRESS';
+export const RESET_SELECTED_CARD = 'RESET_SELECTED_CARD';
 
 
 import { toast } from 'react-toastify';
@@ -71,6 +74,18 @@ export const setCurrentStep = (step) => ({
 export const setPaymentMethod = (method) => ({
   type: SET_PAYMENT_METHOD,
   payload: method
+});
+
+export const resetCart = () => ({
+  type: RESET_CART
+});
+
+export const resetSelectedAddress = () => ({
+  type: RESET_SELECTED_ADDRESS
+});
+
+export const resetSelectedCard = () => ({
+  type: RESET_SELECTED_CARD
 });
 
 // Address Thunk Actions
@@ -153,17 +168,38 @@ export const fetchCards = () => async dispatch => {
 // Yeni kart ekle
 export const addCard = (cardData) => async dispatch => {
   try {
-    await sendRequest({
+    const response = await sendRequest({
       url: '/user/card',
       method: METHODS.POST,
       data: cardData
     });
-    dispatch(fetchCards()); // Kartları yeniden yükle
+    
+    // Kartları yeniden yükle
+    await dispatch(fetchCards());
+    
+    // Yeni eklenen kartı otomatik seç
+    dispatch({ 
+      type: 'SET_SELECTED_CARD', 
+      payload: response 
+    });
+    
+    // Ödeme yöntemini kredi kartı olarak ayarla
+    dispatch({ 
+      type: 'SET_PAYMENT_METHOD', 
+      payload: { 
+        id: 'credit_card', 
+        selectedCard: response 
+      } 
+    });
+
+    return response;
   } catch (error) {
     console.error('Error adding card:', error);
     throw error;
   }
 };
+
+
 
 // Kart güncelle
 export const updateCard = (cardData) => async dispatch => {
@@ -191,5 +227,53 @@ export const deleteCard = (cardId) => async dispatch => {
   } catch (error) {
     console.error('Error deleting card:', error);
     throw error;
+  }
+};
+// Siparişi tamamla
+export const completeOrder = () => async (dispatch, getState) => {
+  const state = getState();
+  const { selectedAddress, selectedCard, cart } = state.shoppingCart;
+  
+  if (!selectedAddress || !selectedCard) {
+    return { success: false, error: 'Address or card not selected' };
+  }
+
+  const orderData = {
+    address_id: selectedAddress.id,
+    order_date: new Date().toISOString(),
+    card_no: selectedCard.card_no,
+    card_name: selectedCard.name_on_card,
+    card_expire_month: selectedCard.expire_month,
+    card_expire_year: selectedCard.expire_year,
+    card_ccv: selectedCard.ccv,
+    price: cart
+      .filter(item => item.checked)
+      .reduce((total, item) => total + (item.product.price * item.count), 0),
+    products: cart
+      .filter(item => item.checked)
+      .map(item => ({
+        product_id: item.product.id,
+        count: item.count,
+        detail: item.detail || ''
+      }))
+  };
+
+  try {
+    await sendRequest({
+      url: '/order',
+      method: METHODS.POST,
+      data: orderData
+    });
+
+    // Başarılı sipariş sonrası state'i temizle
+    dispatch({ type: 'RESET_CART' });
+    dispatch({ type: 'RESET_SELECTED_ADDRESS' });
+    dispatch({ type: 'RESET_SELECTED_CARD' });
+    dispatch({ type: 'SET_CURRENT_STEP', payload: 1 });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Order creation failed:', error);
+    return { success: false, error };
   }
 };

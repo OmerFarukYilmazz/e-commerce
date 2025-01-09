@@ -12,6 +12,9 @@ import {
   SET_PAYMENT_METHOD,
   SET_CARDS,
   SET_SELECTED_CARD,
+  RESET_CART,
+  RESET_SELECTED_ADDRESS,
+  RESET_SELECTED_CARD,
 } from "../actions/shoppingCartAction";
 
 const initialState = {
@@ -60,10 +63,11 @@ const shoppingCartReducer = (state = initialState, action) => {
         ...state,
         currentStep: action.payload,
       };
-    case SET_PAYMENT_METHOD:
+    case 'SET_PAYMENT_METHOD':
       return {
         ...state,
         paymentMethod: action.payload,
+        selectedCard: action.payload.id === 'credit_card' ? action.payload.selectedCard : state.selectedCard
       };
     case SET_CARDS:
       return {
@@ -74,6 +78,25 @@ const shoppingCartReducer = (state = initialState, action) => {
       return {
         ...state,
         selectedCard: action.payload,
+      };
+
+    case RESET_CART:
+      return {
+        ...state,
+        cart: [],
+        currentStep: 1
+      };
+      
+    case RESET_SELECTED_ADDRESS:
+      return {
+        ...state,
+        selectedAddress: null
+      };
+      
+    case RESET_SELECTED_CARD:
+      return {
+        ...state,
+        selectedCard: null
       };
     case ADD_TO_CART:
       // Sepette aynı ürün var mı kontrol et

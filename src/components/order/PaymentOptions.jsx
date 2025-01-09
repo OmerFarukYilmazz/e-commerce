@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setPaymentMethod } from '../../store/actions/shoppingCartAction';
 import CreditCardForm from './CreditCardForm';
 import SavedCards from './SavedCards';
+import { fetchCards } from '../../store/actions/shoppingCartAction';
 
 const PaymentOptions = () => {
   const dispatch = useDispatch();
   const [showCardForm, setShowCardForm] = useState(false);
   const selectedPaymentMethod = useSelector(state => state.shoppingCart.paymentMethod);
   const savedCards = useSelector(state => state.shoppingCart.cards);
+  const selectedCard = useSelector(state => state.shoppingCart.selectedCard);
 
   const paymentMethods = [
     { id: 'credit_card', name: 'Credit Card', icon: '💳' },
@@ -17,8 +19,33 @@ const PaymentOptions = () => {
   ];
 
   const handleMethodSelect = (method) => {
-    dispatch(setPaymentMethod(method));
+    if (method.id === 'credit_card') {
+      // Kredi kartı seçildiğinde, önceden seçili bir kart varsa onu kullan
+      dispatch(setPaymentMethod({
+        ...method,
+        selectedCard: selectedCard
+      }));
+    } else {
+      // Diğer ödeme yöntemleri için sadece yöntemi ayarla
+      dispatch(setPaymentMethod(method));
+    }
   };
+  // Component mount olduğunda veya kartlar değiştiğinde
+  useEffect(() => {
+    // Eğer seçili kart varsa ve ödeme yöntemi credit card ise
+    if (selectedCard && selectedPaymentMethod?.id === 'credit_card') {
+      dispatch(setPaymentMethod({
+        id: 'credit_card',
+        selectedCard: selectedCard
+      }));
+    }
+  }, [selectedCard, dispatch]);
+
+  // Kartları yükle
+  useEffect(() => {
+    dispatch(fetchCards());
+  }, [dispatch]);
+
 
   return (
     <div>

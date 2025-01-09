@@ -8,8 +8,12 @@ import { useHistory } from 'react-router-dom';
 
 import Categories from '../components/category/Categories';
 import { useState } from 'react';
-
 import CartDropdown from '../components/shop/CartDropdown';
+
+import { Menu } from '@headlessui/react';
+import { ChevronDownIcon } from 'lucide-react';
+
+
 
 
 const Header = () => {
@@ -21,6 +25,8 @@ const Header = () => {
   const totalItems = cart.reduce((total, item) => total + item.count, 0);
 
   const [closeTimeout, setCloseTimeout] = useState(null);
+
+
 
   //console.log("Current user state:", userInfo); // Debug için
   
@@ -121,16 +127,48 @@ const Header = () => {
 
             <div className="flex items-center gap-4">
             {userInfo.token? (
-              <div className="flex items-center gap-2">
-                <Gravatar
-                  email={userInfo.email}
-                  size={32}
-                  className="rounded-full"
-                />
-                <User size={20} />
-                <span className="text-sm font-medium">{userInfo.name}</span>
-                <button onClick={handleLogout}>Log out</button>
-              </div>
+            <div className="flex items-center gap-2">
+              <Gravatar
+                email={userInfo.email}
+                size={32}
+                className="rounded-full"
+              />
+              {/* Menu dropdown'ı ekleyelim */}
+              <Menu as="div" className="relative">
+                <Menu.Button className="flex items-center gap-2 hover:text-blue-500">
+                  <User size={20} />
+                  <span className="text-sm font-medium">{userInfo.name}</span>
+                  <ChevronDownIcon className="w-4 h-4" />
+                </Menu.Button>
+
+                <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <Link
+                        to="/orders"
+                        className={`${
+                          active ? 'bg-gray-100' : ''
+                        } block px-4 py-2 text-sm text-gray-700`}
+                      >
+                        My Orders
+                      </Link>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={handleLogout}
+                        className={`${
+                          active ? 'bg-gray-100' : ''
+                        } block w-full text-left px-4 py-2 text-sm text-gray-700`}
+                      >
+                        Log out
+                      </button>
+                    )}
+                  </Menu.Item>
+                </Menu.Items>
+              </Menu>
+            </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Link to="/login" className="text-sm font-medium hover:text-blue-500">

@@ -76,7 +76,7 @@ const OrderAddress = () => {
             <div 
               key={address.id} 
               className={`p-4 rounded-lg border-2 transition-all cursor-pointer
-                ${selectedShippingAddress?.id === address.id 
+                ${selectedAddress?.id === address.id 
                   ? 'border-blue-600 bg-blue-50' 
                   : 'border-gray-200 hover:border-blue-300'
                 }`}

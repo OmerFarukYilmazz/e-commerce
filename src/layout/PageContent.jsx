@@ -10,7 +10,7 @@ import RegisterPage from "../pages/RegisterPage";
 import LoginPage from "../pages/LoginPage";
 import CartPage from "../pages/CartPage";
 import OrderPage from "../pages/OrderPage";
-
+import PreviousOrdersPage from "../pages/PreviousOrdersPage";
 import { useSelector } from 'react-redux';
 import { PublicOnlyRoute } from '../routes/PublicOnlyRoute';
 
@@ -41,6 +41,10 @@ export const PageContent = () => {
         <Route path="/cart">
           <CartPage />
         </Route>    
+        {/* Protected Order Route */}
+        <Route path="/orders">
+          {userInfo.token ? <PreviousOrdersPage /> : <Redirect to="/login" />}
+        </Route>
         <Route path="/order/address">
         {userInfo.token ? <OrderPage /> : <Redirect to="/login" />}
         </Route>  

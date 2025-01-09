@@ -8,7 +8,7 @@ const CreditCardForm = ({ onClose, initialData, onSubmit }) => {
     card_no: '',
     expire_month: '',
     expire_year: '',
-    name_on_card: ''
+    name_on_card: '',    
   });
 
   const handleSubmit = async (e) => {
@@ -103,7 +103,7 @@ const CreditCardForm = ({ onClose, initialData, onSubmit }) => {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               required
             />
-          </div>
+          </div> 
 
           <div className="flex justify-end gap-4 mt-6">
             <button

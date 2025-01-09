@@ -1,5 +1,8 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentStep } from '../../store/actions/shoppingCartAction';
+import { completeOrder } from '../../store/actions/shoppingCartAction';
+import { toast } from 'react-toastify';
+import { useHistory } from 'react-router-dom';
 
 
 const OrderSummary = () => {
@@ -7,7 +10,9 @@ const OrderSummary = () => {
   const selectedAddress  = useSelector(state => state.shoppingCart.selectedAddress); // address key'ini kontrol et
   const selectedPaymentMethod = useSelector(state => state.shoppingCart.paymentMethod);
   const currentStep = useSelector(state => state.shoppingCart.currentStep);
+
   const dispatch = useDispatch();
+  const history = useHistory();
   console.log(selectedAddress);
   console.log(selectedPaymentMethod);
 
@@ -41,14 +46,16 @@ const OrderSummary = () => {
   // Her iki seçim de yapılmış mı kontrol et
   const canComplete = selectedAddress && selectedPaymentMethod;
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (canComplete) {
-      // Siparişi tamamla
-      console.log('Order completed!', {
-        address: selectedAddress,
-        paymentMethod: selectedPaymentMethod,
-        cart: cart
-      });
+      const result = await dispatch(completeOrder());
+      console.log(result);
+      if (result.success) {
+        toast.success('Order completed successfully! Thank you for your purchase.');
+        history.push('/');
+      } else {
+        toast.error('Order failed. Please try again.');
+      }
     }
   };
 

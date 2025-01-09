@@ -11,15 +11,26 @@ const SavedCards = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
 
+  // Component mount olduğunda
   useEffect(() => {
-    dispatch(fetchCards());
+    dispatch(fetchCards()).then(() => {
+      // Eğer seçili kart yoksa ve kartlar varsa ilk kartı seç
+      if (!selectedCard && cards.length > 0) {
+        handleCardSelect(cards[0]);
+      }
+    });
   }, [dispatch]);
 
   const handleCardSelect = (card) => {
     dispatch({ type: 'SET_SELECTED_CARD', payload: card });
-    dispatch({ type: 'SET_PAYMENT_METHOD', payload: { id: 'credit_card', selectedCard: card } });
+    dispatch({ 
+      type: 'SET_PAYMENT_METHOD', 
+      payload: { 
+        id: 'credit_card', 
+        selectedCard: card 
+      } 
+    });
   };
-
   const handleEditClick = (e, card) => {
     e.stopPropagation();
     setEditingCard(card);
